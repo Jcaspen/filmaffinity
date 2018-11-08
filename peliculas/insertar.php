@@ -1,3 +1,4 @@
+<?php session_start() ?>
 <!DOCTYPE html>
 <html lang="es" dir="ltr">
     <head>
@@ -15,13 +16,13 @@
 
         try {
             $error = [];
+            $pdo = conectar();
             comprobarParametros(PAR);
             $valores = array_map('trim', $_POST);
             $flt['titulo'] = comprobarTitulo($error);
             $flt['anyo'] = comprobarAnyo($error);
             $flt['sinopsis'] = trim(filter_input(INPUT_POST, 'sinopsis'));
             $flt['duracion'] = comprobarDuracion($error);
-            $pdo = conectar();
             $flt['genero_id'] = comprobarGeneroId($pdo, $error);
             comprobarErrores($error);
             insertarPelicula($pdo, $flt);

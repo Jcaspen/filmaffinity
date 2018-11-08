@@ -187,7 +187,7 @@ function mostrarFormulario($valores, $error, $pdo, $accion)
                     <label for="genero_id" class="control-label">Género</label>
                     <select class="form-control" name="genero_id">
                         <?php foreach ($generos as $g): ?>
-                            <option value="<?= $g['id'] ?>">
+                            <option value="<?= $g['id'] ?>" <?= selected($g['id'], $genero_id) ?> >
                                 <?= $g['genero'] ?>
                             </option>
                         <?php endforeach ?>
@@ -224,4 +224,9 @@ function comprobarPelicula($pdo, $id)
         throw new ParamException();
     }
     return $fila;
+}
+
+function selected($a, $b)
+{
+    return $a == $b ? 'selected' : '';
 }
