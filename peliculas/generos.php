@@ -71,36 +71,25 @@
                     $pdo->commit();
                 }
 
-                $buscarTitulo = isset($_GET['buscarTitulo'])
-                ? trim($_GET['buscarTitulo'])
+                $buscarGenero = isset($_GET['buscarGenero'])
+                ? trim($_GET['buscarGenero'])
                 : '';
-                $st = $pdo->prepare('SELECT p.*, genero
-                                       FROM peliculas p
-                                       JOIN generos g
-                                         ON genero_id = g.id
-                                      WHERE position(lower(:titulo) in lower(titulo)) != 0
+                $st = $pdo->prepare('SELECT *
+                                       FROM generos
+                                      WHERE position(lower(:generoBuscado) in lower(genero)) != 0
                                    ORDER BY id');
-                $st->execute([':titulo' => $buscarTitulo]);
+                $st->execute([':generoBuscado' => $buscarGenero]);
                 ?>
             </div>
-            <?php
-               $opt = isset($_GET['opt']) ? trim($_GET['opt']) : "";
-           ?>
             <div class="row" id="busqueda">
                 <div class="col-md-12">
                     <fieldset>
                         <legend>Buscar...</legend>
                         <form action="" method="get" class="form-inline">
                             <div class="form-group">
-                                <label for="buscarTitulo">Buscar por </label>
-                                <select name="opt">
-                                    <option value='titulo' <?= $opt == 'titulo' ? "selected" : "" ?>>titulo</option>
-                                    <option value='genero' <?= $opt == 'genero' ? "selected" : "" ?>>genero</option>
-                                    <option value='anyio' <?= $opt == 'anyio' ? "selected" : "" ?>>año</option>
-                                    <option value='duration' <?= $opt == 'duration' ? "selected" : "" ?>>duración</option>
-                                </select>
-                                <input id="buscarTitulo" type="text" name="buscarTitulo"
-                                       value="<?= $buscarTitulo ?>"
+                                <label for="buscarGenero">Buscar por género: </label>
+                                <input id="buscarGenero" type="text" name="buscarGenero"
+                                       value="<?= $buscarGenero ?>"
                                        class="form-control">
                             </div>
                             <input type="submit" value="Buscar" class="btn btn-primary">
@@ -113,20 +102,13 @@
                 <div class="col-md-12">
                     <table class="table table-bordered table-hover table-striped">
                         <thead>
-                            <th>Título</th>
-                            <th>Año</th>
-                            <th>Sinopsis</th>
-                            <th>Duración</th>
-                            <th>Género</th>
+                            <th>Géneros</th>
                             <th>Acciones</th>
+
                         </thead>
                         <tbody>
                             <?php foreach ($st as $fila): ?>
                                 <tr>
-                                    <td><?= h($fila['titulo']) ?></td>
-                                    <td><?= h($fila['anyo']) ?></td>
-                                    <td><?= h($fila['sinopsis']) ?></td>
-                                    <td><?= h($fila['duracion']) ?></td>
                                     <td><?= h($fila['genero']) ?></td>
                                     <td>
                                         <a href="confirm_borrado.php?id=<?= $fila['id'] ?>"
