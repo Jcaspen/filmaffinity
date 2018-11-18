@@ -12,33 +12,8 @@
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-default navbar-inverse">
-            <div class="container">
-                <div class="collapse navbar-collapse navbar-ex1-collapse">
-                    <ul class="nav navbar-nav">
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                          Menú<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                          <li><a href="index.php" class="btn">Películas</a></li>
-                          <li><a href="generos.php" class="btn">Géneros</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">FilmAffinity</a>
-                </div>
-                <div class="navbar-text navbar-right">
-                    <?php if (isset($_SESSION['usuario'])): ?>
-                        <?= $_SESSION['usuario'] ?>
-                        <a href="logout.php" class="btn btn-success">Logout</a>
-                    <?php else: ?>
-                        <a href="login.php" class="btn btn-success">Login</a>
-                    <?php endif ?>
-                </div>
-            </div>
-        </nav>
+        <?php require '../comunes/auxiliar.php';
+        mostrarMenu(); ?>
         <div class="container">
             <br>
             <?php if (isset($_SESSION['mensaje'])): ?>
@@ -51,7 +26,7 @@
             <?php endif ?>
             <div class="row">
                 <?php
-                require '../comunes/auxiliar.php';
+
 
                 $pdo = conectar();
 
@@ -94,10 +69,10 @@
                             <div class="form-group">
                                 <label for="buscarTitulo">Buscar por </label>
                                 <select name="opt">
-                                    <option value='titulo' <?= $opt == 'titulo' ? "selected" : "" ?>>titulo</option>
-                                    <option value='genero' <?= $opt == 'genero' ? "selected" : "" ?>>genero</option>
-                                    <option value='anyio' <?= $opt == 'anyio' ? "selected" : "" ?>>año</option>
-                                    <option value='duration' <?= $opt == 'duration' ? "selected" : "" ?>>duración</option>
+                                    <option value='titulo'<?= selected($opt,'titulo')?>>titulo</option>
+                                    <option value='genero'<?= selected($opt,'genero')?>>genero</option>
+                                    <option value='anyio' <?= selected($opt,'anyio') ?>>año</option>
+                                    <option value='duration' <?= selected($opt,'duration') ?>>duración</option>
                                 </select>
                                 <input id="buscarTitulo" type="text" name="buscarTitulo"
                                        value="<?= $buscarTitulo ?>"
@@ -121,7 +96,8 @@
                             <th>Acciones</th>
                         </thead>
                         <tbody>
-                            <?php foreach ($st as $fila): ?>
+                            <?php
+                            foreach ($st as $fila): ?>
                                 <tr>
                                     <td><?= h($fila['titulo']) ?></td>
                                     <td><?= h($fila['anyo']) ?></td>
@@ -129,7 +105,7 @@
                                     <td><?= h($fila['duracion']) ?></td>
                                     <td><?= h($fila['genero']) ?></td>
                                     <td>
-                                        <a href="confirm_borrado.php?id=<?= $fila['id'] ?>"
+                                        <a href="confirm_borrado.php?id=<?= $fila['id']?>"
                                            class="btn btn-xs btn-danger">
                                             Borrar
                                         </a>
@@ -160,6 +136,7 @@
                 </nav>
             <?php endif ?>
         </div>
+
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
     </body>

@@ -39,6 +39,7 @@
             header('Location: index.php');
         }
         ?>
+        <?php mostrarMenu() ?>
         <div class="container">
             <?php mostrarFormulario($fila, $error, $pdo, 'Modificar') ?>
         </div>

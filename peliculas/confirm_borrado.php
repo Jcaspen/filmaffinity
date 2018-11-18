@@ -11,25 +11,8 @@
     <body>
         <?php
         require '../comunes/auxiliar.php';
-
-        if (!isset($_SESSION['usuario'])) {
-            $_SESSION['mensaje'] = 'Debe iniciar sesión para poder borrar películas';
-            header('Location: index.php');
-        } elseif ($_SESSION['usuario'] != 'admin') {
-            $_SESSION['mensaje'] = 'Debe ser administrador para poder borrar películas';
-            header('Location: index.php');
-        }
-
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-        } else {
-            header('Location: index.php');
-        }
-        $pdo = conectar();
-        if (!buscarPelicula($pdo, $id)) {
-            header('Location: index.php');
-        }
-        ?>
+        comprobarAdmin();
+        mostrarMenu() ?>
         <div class="container">
             <div class="row">
                 <h3>¿Seguro que desea borrar la fila?</h3>

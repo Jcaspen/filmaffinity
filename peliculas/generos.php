@@ -5,40 +5,15 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Bases de datos</title>
+        <title>Géneros</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
         <style media="screen">
             #busqueda { margin-top: 1em; }
         </style>
     </head>
     <body>
-        <nav class="navbar navbar-default navbar-inverse">
-            <div class="container">
-                <div class="collapse navbar-collapse navbar-ex1-collapse">
-                    <ul class="nav navbar-nav">
-                      <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                          Menú<b class="caret"></b>
-                        </a>
-                        <ul class="dropdown-menu">
-                          <li><a href="index.php" class="btn">Películas</a></li>
-                          <li><a href="generos.php" class="btn">Géneros</a></li>
-                        </ul>
-                      </li>
-                    </ul>
-                <div class="navbar-header">
-                    <a class="navbar-brand" href="#">FilmAffinity</a>
-                </div>
-                <div class="navbar-text navbar-right">
-                    <?php if (isset($_SESSION['usuario'])): ?>
-                        <?= $_SESSION['usuario'] ?>
-                        <a href="logout.php" class="btn btn-success">Logout</a>
-                    <?php else: ?>
-                        <a href="login.php" class="btn btn-success">Login</a>
-                    <?php endif ?>
-                </div>
-            </div>
-        </nav>
+        <?php require '../comunes/auxiliar.php';
+        mostrarMenu() ?>
         <div class="container">
             <br>
             <?php if (isset($_SESSION['mensaje'])): ?>
@@ -51,21 +26,20 @@
             <?php endif ?>
             <div class="row">
                 <?php
-                require '../comunes/auxiliar.php';
 
                 $pdo = conectar();
 
                 if (isset($_POST['id'])) {
                     $id = $_POST['id'];
                     $pdo->beginTransaction();
-                    $pdo->exec('LOCK TABLE peliculas IN SHARE MODE');
-                    if (!buscarPelicula($pdo, $id)) { ?>
-                        <h3>La película no existe.</h3>
+                    $pdo->exec('LOCK TABLE generos IN SHARE MODE');
+                    if (!buscarGenero($pdo, $id)) { ?>
+                        <h3>El género no existe.</h3>
                         <?php
                     } else {
-                        $st = $pdo->prepare('DELETE FROM peliculas WHERE id = :id');
+                        $st = $pdo->prepare('DELETE FROM generos WHERE id = :id');
                         $st->execute([':id' => $id]); ?>
-                        <h3>Película borrada correctamente.</h3>
+                        <h3>Género borrado correctamente.</h3>
                         <?php
                     }
                     $pdo->commit();
@@ -87,7 +61,7 @@
                         <legend>Buscar...</legend>
                         <form action="" method="get" class="form-inline">
                             <div class="form-group">
-                                <label for="buscarGenero">Buscar por género: </label>
+                                <label for="buscarGenero"></label>
                                 <input id="buscarGenero" type="text" name="buscarGenero"
                                        value="<?= $buscarGenero ?>"
                                        class="form-control">
@@ -107,11 +81,12 @@
 
                         </thead>
                         <tbody>
-                            <?php foreach ($st as $fila): ?>
+                            <?php
+                            foreach ($st as $fila): ?>
                                 <tr>
                                     <td><?= h($fila['genero']) ?></td>
                                     <td>
-                                        <a href="confirm_borrado.php?id=<?= $fila['id'] ?>"
+                                        <a href="confirm_borrado.php?id=<?= $fila['id']?>"
                                            class="btn btn-xs btn-danger">
                                             Borrar
                                         </a>
@@ -128,7 +103,7 @@
             </div>
             <div class="row">
                 <div class="text-center">
-                    <a href="insertar.php" class="btn btn-info">Insertar una nueva película</a>
+                    <a href="insertar.php" class="btn btn-info">Insertar un nuevo género</a>
                 </div>
             </div>
             <?php if (!isset($_COOKIE['acepta'])): ?>

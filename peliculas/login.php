@@ -34,6 +34,7 @@
             header('Location: index.php');
         }
         ?>
+        <?php mostrarMenu() ?>
         <div class="container">
             <div class="row">
                 <form action="" method="post">

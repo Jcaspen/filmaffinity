@@ -32,6 +32,13 @@ function buscarPelicula($pdo, $id)
     return $st->fetch();
 }
 
+function buscarGenero($pdo, $id)
+{
+    $st = $pdo->prepare('SELECT * FROM generos WHERE id = :id');
+    $st->execute([':id' => $id]);
+    return $st->fetch();
+}
+
 function buscarUsuario($pdo, $id)
 {
     $st = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
@@ -98,6 +105,32 @@ function comprobarGeneroId($pdo, &$error)
     }
     return $fltGeneroId;
 }
+
+function comprobarAdmin()
+{
+
+    if (!isset($_SESSION['usuario'])) {
+        $_SESSION['mensaje'] = 'Debe iniciar sesión para poder borrar películas';
+        header('Location: index.php');
+    } elseif ($_SESSION['usuario'] != 'admin') {
+        $_SESSION['mensaje'] = 'Debe ser administrador para poder borrar películas';
+        header('Location: index.php');
+    }
+
+
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+        } else {
+            header('Location: index.php');
+        }
+        $pdo = conectar();
+        if (!buscarPelicula($pdo, $id)) {
+            header('Location: index.php');
+        }
+    }
+
+
+
 
 function insertarPelicula($pdo, $fila)
 {
@@ -281,3 +314,34 @@ function comprobarUsuario($valores, $pdo, &$error)
     $error['sesion'] = 'El usuario o la contraseña son incorrectos.';
     return false;
 }
+
+function mostrarMenu()
+{ ?>
+    <nav class="navbar navbar-default navbar-inverse">
+        <div class="container">
+            <div class="collapse navbar-collapse navbar-ex1-collapse">
+                <ul class="nav navbar-nav">
+                  <li class="dropdown">
+                    <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                      Menú<b class="caret"></b>
+                    </a>
+                    <ul class="dropdown-menu">
+                      <li><a href="index.php" class="btn">Películas</a></li>
+                      <li><a href="generos.php" class="btn">Géneros</a></li>
+                    </ul>
+                  </li>
+                </ul>
+            <div class="navbar-header">
+                <a class="navbar-brand" href="#">FilmAffinity</a>
+            </div>
+            <div class="navbar-text navbar-right">
+                <?php if (isset($_SESSION['usuario'])): ?>
+                    <?= $_SESSION['usuario'] ?>
+                    <a href="logout.php" class="btn btn-success">Logout</a>
+                <?php else: ?>
+                    <a href="login.php" class="btn btn-success">Login</a>
+                <?php endif ?>
+            </div>
+        </div>
+    </nav>
+<?php } ?>

@@ -33,6 +33,7 @@
             header('Location: index.php');
         }
         ?>
+        <?php mostrarMenu() ?>
         <div class="container">
             <?php mostrarFormulario($valores, $error, $pdo, 'Insertar') ?>
         </div>
