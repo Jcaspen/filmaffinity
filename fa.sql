@@ -23,7 +23,20 @@ CREATE TABLE peliculas
                            ON UPDATE CASCADE
 );
 
+CREATE TABLE usuarios
+(
+    id       BIGSERIAL   PRIMARY KEY
+  , login    VARCHAR(50) NOT NULL UNIQUE
+                         CONSTRAINT ck_login_sin_espacios
+                         CHECK (login NOT LIKE '% %')
+  , password VARCHAR(60) NOT NULL
+);
+
 -- INSERT
+
+INSERT INTO usuarios (login, password)
+VALUES ('pepe', crypt('pepe', gen_salt('bf', 10)))
+     , ('admin', crypt('admin', gen_salt('bf', 10)));
 
 INSERT INTO generos (genero)
 VALUES ('Comedia')

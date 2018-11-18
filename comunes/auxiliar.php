@@ -32,6 +32,13 @@ function buscarPelicula($pdo, $id)
     return $st->fetch();
 }
 
+function buscarUsuario($pdo, $id)
+{
+    $st = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+    $st->execute([':id' => $id]);
+    return $st->fetch();
+}
+
 function comprobarTitulo(&$error)
 {
     $fltTitulo = trim(filter_input(INPUT_POST, 'titulo'));
@@ -229,4 +236,48 @@ function comprobarPelicula($pdo, $id)
 function selected($a, $b)
 {
     return $a == $b ? 'selected' : '';
+}
+
+function comprobarLogin(&$error)
+{
+    $login = trim(filter_input(INPUT_POST, 'login'));
+    if ($login === '') {
+        $error['login'] = 'El nombre de usuario no puede estar vacío.';
+    }
+    return $login;
+}
+
+function comprobarPassword(&$error)
+{
+    $password = trim(filter_input(INPUT_POST, 'password'));
+    if ($password === '') {
+        $error['password'] = 'La contraseña no puede estar vacía.';
+    }
+    return $password;
+}
+
+/**
+ * Comprueba si existe el usuario indicado en el array
+ * $valores, con el nombre y la contraseña dados.
+ *
+ * @param  array      $valores El nombre y la contraseña
+ * @param  PDO        $pdo     Objeto PDO usado para buscar al usuario
+ * @param  array      $error   El array de errores
+ * @return array|bool          La fila del usuario si existe; false e.o.c.
+ */
+function comprobarUsuario($valores, $pdo, &$error)
+{
+    extract($valores);
+    $st = $pdo->prepare('SELECT *
+                           FROM usuarios
+                          WHERE login = :login');
+    $st->execute(['login' => $login]);
+    $fila = $st->fetch();
+    if ($fila !== false) {
+        if (password_verify($password, $fila['password'])) {
+            return $fila;
+        }
+    }
+    $error['sesion'] = 'El usuario o la contraseña son incorrectos.';
+    return false;
 }
