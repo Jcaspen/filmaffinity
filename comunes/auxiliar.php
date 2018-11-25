@@ -214,7 +214,7 @@ function mensajeError($key, $error)
 {
     if (isset($error[$key])) { ?>
         <small class="help-block"><?= $error[$key] ?></small>
-        <script language='JavaScript'>alert ('Por favor, Escriba el código de control correctamente.'); </script>
+        <script language='JavaScript'>alert ("<?= $error[$key] ?>"); </script>
     <?php
     }
 }
@@ -425,4 +425,9 @@ function pie()
         <p class="text-left">Copyright (c) 2018 Jose Luis Castillo Peña</p>
     </div>
     <?php
+}
+
+function recogerGeneros($pdo)
+{
+    return $pdo->query('SELECT * FROM generos')->fetchAll();
 }
