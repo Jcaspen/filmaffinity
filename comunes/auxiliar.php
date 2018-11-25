@@ -8,6 +8,10 @@ const PAR = [
     'genero_id' => '',
 ];
 
+const PAR_GENEROS = [
+    'genero' => '',
+];
+
 class ValidationException extends Exception
 {
 }
@@ -32,6 +36,27 @@ function buscarPelicula($pdo, $id)
     return $st->fetch();
 }
 
+function buscarPeliculasPorGenero($pdo, $genero_id)
+{
+    $st = $pdo->prepare('SELECT * FROM peliculas WHERE genero_id = :genero_id');
+    $st->execute([':genero_id' => $genero_id]);
+    return $st->fetchAll();
+}
+
+function buscarGenero($pdo, $id)
+{
+    $st = $pdo->prepare('SELECT * FROM generos WHERE id = :id');
+    $st->execute([':id' => $id]);
+    return $st->fetch();
+}
+
+function buscarGeneroPorGenero($pdo, $genero)
+{
+    $st = $pdo->prepare('SELECT * FROM generos WHERE genero = :genero');
+    $st->execute([':genero' => $genero]);
+    return $st->fetch();
+}
+
 function buscarUsuario($pdo, $id)
 {
     $st = $pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
@@ -48,6 +73,20 @@ function comprobarTitulo(&$error)
         $error['titulo'] = "El título es demasiado largo.";
     }
     return $fltTitulo;
+}
+
+function comprobarGenero($pdo, &$error)
+{
+    $fltGenero = trim(filter_input(INPUT_POST, 'genero'));
+    if ($fltGenero === '') {
+        $error['genero'] = 'El género es obligatorio.';
+    } elseif (mb_strlen($fltGenero) > 255) {
+        $error['genero'] = "El género es demasiado largo.";
+    }
+    if (buscarGeneroPorGenero($pdo, $fltGenero)) {
+        $error['genero'] = 'El género ya existe.';
+    }
+    return $fltGenero;
 }
 
 function comprobarAnyo(&$error)
@@ -106,6 +145,13 @@ function insertarPelicula($pdo, $fila)
     $st->execute($fila);
 }
 
+function insertarGenero($pdo, $fila)
+{
+    $st = $pdo->prepare('INSERT INTO generos (genero)
+                         VALUES (:genero)');
+    $st->execute($fila);
+}
+
 function modificarPelicula($pdo, $fila, $id)
 {
     $st = $pdo->prepare('UPDATE peliculas
@@ -118,6 +164,13 @@ function modificarPelicula($pdo, $fila, $id)
     $st->execute($fila + ['id' => $id]);
 }
 
+function modificarGenero($pdo, $fila, $id)
+{
+    $st = $pdo->prepare('UPDATE generos
+                            SET genero = :genero
+                          WHERE id = :id');
+    $st->execute($fila + ['id' => $id]);
+}
 
 function comprobarParametros($par)
 {
@@ -210,6 +263,32 @@ function mostrarFormulario($valores, $error, $pdo, $accion)
     <?php
 }
 
+function mostrarFormularioGenero($valores, $error, $pdo, $accion)
+{
+    extract($valores);
+    ?>
+    <br>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><?= $accion ?> un nuevo género...</h3>
+        </div>
+        <div class="panel-body">
+            <form action="" method="post">
+                <div class="form-group <?= hasError('genero', $error) ?>">
+                    <label for="genero" class="control-label">Género</label>
+                    <input id="genero" type="text" name="genero"
+                           class="form-control" value="<?= h($genero) ?>">
+                    <?php mensajeError('genero', $error) ?>
+                </div>
+                <input type="submit" value="<?= $accion ?>"
+                       class="btn btn-success">
+                <a href="index.php" class="btn btn-info">Volver</a>
+            </form>
+        </div>
+    </div>
+    <?php
+}
+
 function h($cadena)
 {
     return htmlspecialchars($cadena, ENT_QUOTES);
@@ -280,4 +359,52 @@ function comprobarUsuario($valores, $pdo, &$error)
     }
     $error['sesion'] = 'El usuario o la contraseña son incorrectos.';
     return false;
+}
+
+function pie()
+{
+    if (!isset($_COOKIE['acepta'])): ?>
+        <nav class="navbar navbar-fixed-bottom navbar-inverse">
+            <div class="container">
+                <div class="navbar-text navbar-right">
+                    Tienes que aceptar las políticas de cookies.
+                    <a href="crear_cookie.php" class="btn btn-success">Aceptar cookies</a>
+                </div>
+            </div>
+        </nav>
+    <?php endif ?>
+    <hr>
+    <div class="row">
+        <p class="text-right">Copyright (c) 2018 IES Doñana</p>
+    </div>
+    <?php
+}
+
+function encabezado()
+{ ?>
+    <nav class="navbar navbar-default navbar-inverse">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">FilmAffinity</a>
+            </div>
+            <ul class="nav navbar-nav">
+                <li><a href="/peliculas/">Películas</a></li>
+                <li><a href="/generos/">Géneros</a></li>
+            </ul>
+            <div class="navbar-text navbar-right">
+                <?php if (isset($_SESSION['usuario'])): ?>
+                    <?= $_SESSION['usuario'] ?>
+                    <a href="/logout.php" class="btn btn-success">Logout</a>
+                <?php else: ?>
+                    <a href="/login.php" class="btn btn-success">Login</a>
+                <?php endif ?>
+            </div>
+        </div>
+    </nav>
+    <?php
+}
+
+function recogerGeneros($pdo)
+{
+    return $pdo->query('SELECT * FROM generos')->fetchAll();
 }

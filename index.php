@@ -10,32 +10,13 @@
     </head>
     <body>
         <?php
-        require '../comunes/auxiliar.php';
+        require 'comunes/auxiliar.php';
         encabezado();
-
-        $valores = PAR;
-
-        try {
-            $error = [];
-            $pdo = conectar();
-            comprobarParametros(PAR);
-            $valores = array_map('trim', $_POST);
-            $flt['titulo'] = comprobarTitulo($error);
-            $flt['anyo'] = comprobarAnyo($error);
-            $flt['sinopsis'] = trim(filter_input(INPUT_POST, 'sinopsis'));
-            $flt['duracion'] = comprobarDuracion($error);
-            $flt['genero_id'] = comprobarGeneroId($pdo, $error);
-            comprobarErrores($error);
-            insertarPelicula($pdo, $flt);
-            header('Location: index.php');
-        } catch (EmptyParamException|ValidationException $e) {
-            // No hago nada
-        } catch (ParamException $e) {
-            header('Location: index.php');
-        }
         ?>
         <div class="container">
-            <?php mostrarFormulario($valores, $error, $pdo, 'Insertar') ?>
+            <div class="jumbotron">
+                <h1>FilmAffinity</h1>
+            </div>
             <?php pie() ?>
         </div>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
