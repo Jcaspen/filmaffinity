@@ -5,37 +5,34 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Insertar una nueva película</title>
+        <title>Confirmar borrado</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body>
         <?php
         require '../comunes/auxiliar.php';
-
-        $valores = PAR;
-
-        try {
-            $error = [];
-            $pdo = conectar();
-            comprobarParametros(PAR);
-            $valores = array_map('trim', $_POST);
-            $flt['titulo'] = comprobarTitulo($error);
-            $flt['anyo'] = comprobarAnyo($error);
-            $flt['sinopsis'] = trim(filter_input(INPUT_POST, 'sinopsis'));
-            $flt['duracion'] = comprobarDuracion($error);
-            $flt['genero_id'] = comprobarGeneroId($pdo, $error);
-            comprobarErrores($error);
-            insertarPelicula($pdo, $flt);
-            header('Location: index.php');
-        } catch (EmptyParamException|ValidationException $e) {
-            // No hago nada
-        } catch (ParamException $e) {
+        comprobarAdmin();
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+        } else {
             header('Location: index.php');
         }
-        ?>
-        <?php mostrarMenu() ?>
+        $pdo = conectar();
+        if (!buscarGenero($pdo, $id)) {
+            header('Location: index.php');
+        }
+        mostrarMenu() ?>
         <div class="container">
-            <?php mostrarFormulario($valores, $error, $pdo, 'Insertar','una nueva película') ?>
+            <div class="row">
+                <h3>¿Seguro que desea borrar este género?</h3>
+                <div class="col-md-4">
+                    <form action="index.php" method="post" class="form-inline">
+                        <input type="hidden" name="id" value="<?= $id ?>">
+                        <input type="submit" value="Sí" class="form-control btn btn-danger">
+                        <a href="index.php" class="btn btn-success">No</a>
+                    </form>
+                </div>
+            </div>
             <?php pie() ?>
         </div>
 

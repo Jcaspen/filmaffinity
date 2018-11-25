@@ -12,6 +12,16 @@
         <?php
         require '../comunes/auxiliar.php';
         comprobarAdmin();
+
+        if (isset($_GET['id'])) {
+            $id = $_GET['id'];
+        } else {
+            header('Location: index.php');
+        }
+        $pdo = conectar();
+        if (!buscarPelicula($pdo, $id)) {
+            header('Location: index.php');
+        }
         mostrarMenu() ?>
         <div class="container">
             <div class="row">

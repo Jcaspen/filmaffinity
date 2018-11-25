@@ -28,7 +28,6 @@
                 <?php
 
                 $pdo = conectar();
-
                 if (isset($_POST['id'])) {
                     $id = $_POST['id'];
                     $pdo->beginTransaction();
@@ -37,10 +36,18 @@
                         <h3>El género no existe.</h3>
                         <?php
                     } else {
-                        $st = $pdo->prepare('DELETE FROM generos WHERE id = :id');
-                        $st->execute([':id' => $id]); ?>
-                        <h3>Género borrado correctamente.</h3>
-                        <?php
+                        if (buscarPeliculasPorGenero($pdo, $id)) { ?>
+                            <h3>Hay películas de ese género.</h3>
+                            <?php
+                        } else {
+                            $st = $pdo->prepare('DELETE FROM generos WHERE id = :id');
+                            if (!$st->execute([':id' => $id])) {
+                                print_r($st->errorInfo());
+                            } else { ?>
+                                <h3>Género borrado correctamente.</h3>
+                                <?php
+                            }
+                        }
                     }
                     $pdo->commit();
                 }
@@ -86,11 +93,11 @@
                                 <tr>
                                     <td><?= h($fila['genero']) ?></td>
                                     <td>
-                                        <a href="confirm_borrado.php?id=<?= $fila['id']?>"
+                                        <a href="../generos/confirm_borrado.php?id=<?= $fila['id']?>"
                                            class="btn btn-xs btn-danger">
                                             Borrar
                                         </a>
-                                        <a href="modificar.php?id=<?= $fila['id'] ?>"
+                                        <a href="../generos/modificar.php?id=<?= $fila['id'] ?>"
                                            class="btn btn-xs btn-info">
                                             Modificar
                                         </a>

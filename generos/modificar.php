@@ -5,7 +5,7 @@
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>Modificar una nueva película</title>
+        <title>Modificar un Género</title>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     </head>
     <body>
@@ -13,25 +13,21 @@
         require '../comunes/auxiliar.php';
 
         if (!isset($_SESSION['usuario'])) {
-            $_SESSION['mensaje'] = 'Debe iniciar sesión para modificar películas.';
-            header('Location: index.php');
+            $_SESSION['mensaje'] = 'Debe iniciar sesión para modificar géneros.';
+            header('Location: ../peliculas/generos.php');
         }
 
         try {
             $error = [];
             $id = comprobarId();
             $pdo = conectar();
-            $fila = comprobarPelicula($pdo, $id);
-            comprobarParametros(PAR);
+            $fila = buscarGenero($pdo, $id);
+            comprobarParametros(PAR_GENEROS);
             $valores = array_map('trim', $_POST);
-            $flt['titulo'] = comprobarTitulo($error);
-            $flt['anyo'] = comprobarAnyo($error);
-            $flt['sinopsis'] = trim(filter_input(INPUT_POST, 'sinopsis'));
-            $flt['duracion'] = comprobarDuracion($error);
-            $flt['genero_id'] = comprobarGeneroId($pdo, $error);
+            $flt['genero'] = comprobarGenero($pdo, $error);
             comprobarErrores($error);
-            modificarPelicula($pdo, $flt, $id);
-            $_SESSION['mensaje'] = 'Película modificada correctamente.';
+            modificarGenero($pdo, $flt, $id);
+            $_SESSION['mensaje'] = 'Género modificado correctamente.';
             header('Location: index.php');
         } catch (EmptyParamException|ValidationException $e) {
             // No hago nada
@@ -41,7 +37,7 @@
         ?>
         <?php mostrarMenu() ?>
         <div class="container">
-            <?php mostrarFormulario($fila, $error, $pdo, 'Modificar', 'una película') ?>
+            <?php mostrarFormularioGenero($fila, $error, $pdo, 'Modificar', 'un género') ?>
             <?php pie() ?>
         </div>
 

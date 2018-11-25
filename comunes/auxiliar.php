@@ -8,6 +8,10 @@ const PAR = [
     'genero_id' => '',
 ];
 
+const PAR_GENEROS = [
+    'genero' => '',
+];
+
 class ValidationException extends Exception
 {
 }
@@ -36,6 +40,13 @@ function buscarGenero($pdo, $id)
 {
     $st = $pdo->prepare('SELECT * FROM generos WHERE id = :id');
     $st->execute([':id' => $id]);
+    return $st->fetch();
+}
+
+function buscarGeneroPorGenero($pdo, $genero)
+{
+    $st = $pdo->prepare('SELECT * FROM generos WHERE genero = :genero');
+    $st->execute([':genero' => $genero]);
     return $st->fetch();
 }
 
@@ -106,6 +117,20 @@ function comprobarGeneroId($pdo, &$error)
     return $fltGeneroId;
 }
 
+function comprobarGenero($pdo, &$error)
+{
+    $fltGenero = trim(filter_input(INPUT_POST, 'genero'));
+    if ($fltGenero === '') {
+        $error['genero'] = 'El género es obligatorio.';
+    } elseif (mb_strlen($fltGenero) > 255) {
+        $error['genero'] = "El género es demasiado largo.";
+    }
+    if (buscarGeneroPorGenero($pdo, $fltGenero)) {
+        $error['genero'] = 'El género ya existe.';
+    }
+    return $fltGenero;
+}
+
 function comprobarAdmin()
 {
 
@@ -116,19 +141,14 @@ function comprobarAdmin()
         $_SESSION['mensaje'] = 'Debe ser administrador para poder borrar películas';
         header('Location: index.php');
     }
+}
 
-
-        if (isset($_GET['id'])) {
-            $id = $_GET['id'];
-        } else {
-            header('Location: index.php');
-        }
-        $pdo = conectar();
-        if (!buscarPelicula($pdo, $id)) {
-            header('Location: index.php');
-        }
-    }
-
+function buscarPeliculasPorGenero($pdo, $genero_id)
+{
+    $st = $pdo->prepare('SELECT * FROM peliculas WHERE genero_id = :genero_id');
+    $st->execute([':genero_id' => $genero_id]);
+    return $st->fetchAll();
+}
 
 
 
@@ -136,6 +156,13 @@ function insertarPelicula($pdo, $fila)
 {
     $st = $pdo->prepare('INSERT INTO peliculas (titulo, anyo, sinopsis, duracion, genero_id)
                          VALUES (:titulo, :anyo, :sinopsis, :duracion, :genero_id)');
+    $st->execute($fila);
+}
+
+function insertarGenero($pdo, $fila)
+{
+    $st = $pdo->prepare('INSERT INTO generos (genero)
+                         VALUES (:genero)');
     $st->execute($fila);
 }
 
@@ -147,6 +174,14 @@ function modificarPelicula($pdo, $fila, $id)
                               , sinopsis = :sinopsis
                               , duracion = :duracion
                               , genero_id = :genero_id
+                          WHERE id = :id');
+    $st->execute($fila + ['id' => $id]);
+}
+
+function modificarGenero($pdo, $fila, $id)
+{
+    $st = $pdo->prepare('UPDATE generos
+                            SET genero = :genero
                           WHERE id = :id');
     $st->execute($fila + ['id' => $id]);
 }
@@ -179,11 +214,12 @@ function mensajeError($key, $error)
 {
     if (isset($error[$key])) { ?>
         <small class="help-block"><?= $error[$key] ?></small>
+        <script language='JavaScript'>alert ('Por favor, Escriba el código de control correctamente.'); </script>
     <?php
     }
 }
 
-function mostrarFormulario($valores, $error, $pdo, $accion)
+function mostrarFormulario($valores, $error, $pdo, $accion,$donde)
 {
     extract($valores);
     $st = $pdo->query('SELECT * FROM generos');
@@ -192,7 +228,7 @@ function mostrarFormulario($valores, $error, $pdo, $accion)
     <br>
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title"><?= $accion ?> una nueva película...</h3>
+            <h3 class="panel-title"><?= $accion ?> <?= $donde ?>...</h3>
         </div>
         <div class="panel-body">
             <form action="" method="post">
@@ -233,6 +269,32 @@ function mostrarFormulario($valores, $error, $pdo, $accion)
                         <?php endforeach ?>
                     </select>
                     <?php mensajeError('genero_id', $error) ?>
+                </div>
+                <input type="submit" value="<?= $accion ?>"
+                       class="btn btn-success">
+                <a href="index.php" class="btn btn-info">Volver</a>
+            </form>
+        </div>
+    </div>
+    <?php
+}
+
+function mostrarFormularioGenero($valores, $error, $pdo, $accion)
+{
+    extract($valores);
+    ?>
+    <br>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><?= $accion ?> un nuevo género...</h3>
+        </div>
+        <div class="panel-body">
+            <form action="" method="post">
+                <div class="form-group <?= hasError('genero', $error) ?>">
+                    <label for="genero" class="control-label">Género</label>
+                    <input id="genero" type="text" name="genero"
+                           class="form-control" value="<?= h($genero) ?>">
+                    <?php mensajeError('genero', $error) ?>
                 </div>
                 <input type="submit" value="<?= $accion ?>"
                        class="btn btn-success">
@@ -326,8 +388,8 @@ function mostrarMenu()
                       Menú<b class="caret"></b>
                     </a>
                     <ul class="dropdown-menu">
-                      <li><a href="index.php" class="btn">Películas</a></li>
-                      <li><a href="generos.php" class="btn">Géneros</a></li>
+                      <li><a href="../peliculas/index.php" class="btn">Películas</a></li>
+                      <li><a href="../generos/index.php" class="btn">Géneros</a></li>
                     </ul>
                   </li>
                 </ul>
@@ -337,9 +399,9 @@ function mostrarMenu()
             <div class="navbar-text navbar-right">
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <?= $_SESSION['usuario'] ?>
-                    <a href="logout.php" class="btn btn-success">Logout</a>
+                    <a href="../peliculas/logout.php" class="btn btn-success">Logout</a>
                 <?php else: ?>
-                    <a href="login.php" class="btn btn-success">Login</a>
+                    <a href="../peliculas/login.php" class="btn btn-success">Login</a>
                 <?php endif ?>
             </div>
         </div>
