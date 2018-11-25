@@ -25,6 +25,9 @@
             $flt['password'] = comprobarPassword($error);
             $usuario = comprobarUsuario($flt, $pdo, $error);
             comprobarErrores($error);
+            if (!empty($error)) { ?>
+                <h3>Error</h3>
+            <?php }
             // Sólo queda loguearse
             $_SESSION['usuario'] = $usuario['login'];
             header('Location: index.php');

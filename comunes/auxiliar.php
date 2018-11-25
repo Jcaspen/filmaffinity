@@ -426,8 +426,3 @@ function pie()
     </div>
     <?php
 }
-
-function recogerGeneros($pdo)
-{
-    return $pdo->query('SELECT * FROM generos')->fetchAll();
-}
