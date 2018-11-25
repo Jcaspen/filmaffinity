@@ -344,4 +344,23 @@ function mostrarMenu()
             </div>
         </div>
     </nav>
-<?php } ?>
+<?php }
+
+function pie()
+{
+    if (!isset($_COOKIE['acepta'])): ?>
+        <nav class="navbar navbar-fixed-bottom navbar-inverse">
+            <div class="container">
+                <div class="navbar-text navbar-right">
+                    Tienes que aceptar las políticas de cookies.
+                    <a href="crear_cookie.php" class="btn btn-success">Aceptar cookies</a>
+                </div>
+            </div>
+        </nav>
+    <?php endif ?>
+    <hr>
+    <div class="row">
+        <p class="text-left">Copyright (c) 2018 Jose Luis Castillo Peña</p>
+    </div>
+    <?php
+}
