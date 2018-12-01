@@ -12,8 +12,6 @@
         <?php
         require '../comunes/auxiliar.php';
 
-        const PAR_LOGIN = ['login' => '', 'password' => ''];
-
         $valores = PAR_LOGIN;
 
         try {
@@ -26,15 +24,15 @@
             $usuario = comprobarUsuario($flt, $pdo, $error);
             comprobarErrores($error);
             if (!empty($error)) { ?>
-                <h3>Error</h3>
+                <h3>Tenemos un problema</h3>
             <?php }
             // Sólo queda loguearse
             $_SESSION['usuario'] = $usuario['login'];
-            header('Location: index.php');
+            header('Location: ../index.php');
         } catch (EmptyParamException|ValidationException $e) {
             // No hago nada
         } catch (ParamException $e) {
-            header('Location: index.php');
+            header('Location: ../index.php');
         }
         ?>
         <?php mostrarMenu() ?>
@@ -50,6 +48,7 @@
                         <input class="form-control" type="password" name="password" value="">
                     </div>
                     <button type="submit" class="btn btn-default">Iniciar sesión</button>
+                    <a href="registrar.php" class="btn btn-info">Registrarse</a>
                 </form>
             </div>
             <?php pie() ?>

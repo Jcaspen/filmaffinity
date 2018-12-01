@@ -12,6 +12,8 @@ const PAR_GENEROS = [
     'genero' => '',
 ];
 
+const PAR_LOGIN = ['login' => '', 'password' => ''];
+
 class ValidationException extends Exception
 {
 }
@@ -166,6 +168,14 @@ function insertarGenero($pdo, $fila)
     $st->execute($fila);
 }
 
+function insertarUsuario($pdo, $fila)
+{
+
+    $st = $pdo->prepare('INSERT INTO usuarios (login, password)
+                         VALUES (:login,crypt(:password, gen_salt(\'bf\', 10)))');
+    $st->execute($fila);
+}
+
 function modificarPelicula($pdo, $fila, $id)
 {
     $st = $pdo->prepare('UPDATE peliculas
@@ -305,6 +315,39 @@ function mostrarFormularioGenero($valores, $error, $pdo, $accion)
     <?php
 }
 
+function mostrarFormularioUsuario($valores, $error, $pdo, $accion)
+{
+    extract($valores);
+    ?>
+    <br>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h3 class="panel-title"><?= $accion ?> un nuevo usuario</h3>
+        </div>
+        <div class="panel-body">
+
+                <div class="container">
+                    <div class="row">
+                        <form action="" method="post">
+                            <div class="form-group">
+                                <label for="login">Usuario:</label>
+                                <input class="form-control" type="text" name="login" value="">
+                            </div>
+                            <div class="form-group">
+                                <label for="password">Contraseña:</label>
+                                <input class="form-control" type="password" name="password" value="">
+                            </div>
+                            <input type="submit" value="<?= $accion ?>"
+                            class="btn btn-success">
+                            <a href="login.php" class="btn btn-info">Volver</a>
+                        </form>
+                    </div>
+                </div>
+        </div>
+    </div>
+    <?php
+}
+
 function h($cadena)
 {
     return htmlspecialchars($cadena, ENT_QUOTES);
@@ -342,6 +385,27 @@ function comprobarLogin(&$error)
     return $login;
 }
 
+function comprobarLogins($pdo, &$error)
+{
+    $fltLogin = trim(filter_input(INPUT_POST, 'login'));
+    if ($fltLogin === '') {
+        $error['login'] = 'El Usuario es obligatorio.';
+    } elseif (mb_strlen($fltLogin) > 50) {
+        $error['login'] = "El usuario es demasiado largo.";
+    }
+    if (buscarLoginporLogin($pdo, $fltLogin)) {
+        $error['login'] = 'El Usuario ya existe.';
+    }
+    return $fltLogin;
+}
+
+function buscarLoginporLogin($pdo, $Login)
+{
+    $st = $pdo->prepare('SELECT * FROM usuarios WHERE login = :login');
+    $st->execute([':login' => $Login]);
+    return $st->fetch();
+}
+
 function comprobarPassword(&$error)
 {
     $password = trim(filter_input(INPUT_POST, 'password'));
@@ -373,7 +437,7 @@ function comprobarUsuario($valores, $pdo, &$error)
             return $fila;
         }
     }
-    $error['sesion'] = 'El usuario o la contraseña son incorrectos.';
+    $error['sesion'] = 'El usuario no existe.';
     return false;
 }
 
@@ -399,9 +463,9 @@ function mostrarMenu()
             <div class="navbar-text navbar-right">
                 <?php if (isset($_SESSION['usuario'])): ?>
                     <?= $_SESSION['usuario'] ?>
-                    <a href="../peliculas/logout.php" class="btn btn-success">Logout</a>
+                    <a href="../comunes/logout.php" class="btn btn-success">Logout</a>
                 <?php else: ?>
-                    <a href="../peliculas/login.php" class="btn btn-success">Login</a>
+                    <a href="../comunes/login.php" class="btn btn-success">Login</a>
                 <?php endif ?>
             </div>
         </div>

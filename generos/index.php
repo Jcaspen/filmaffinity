@@ -97,7 +97,7 @@
                                            class="btn btn-xs btn-danger">
                                             Borrar
                                         </a>
-                                        <a href="../generos/modificar.php?id=<?= $fila['id'] ?>"
+                                        <a href="modificar.php?id=<?= $fila['id'] ?>"
                                            class="btn btn-xs btn-info">
                                             Modificar
                                         </a>

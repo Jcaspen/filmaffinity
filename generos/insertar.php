@@ -15,7 +15,7 @@
         $valores = PAR_GENEROS;
 
         try {
-            $error = [];
+           $error = [];
            $pdo = conectar();
            comprobarParametros(PAR_GENEROS);
            $valores = array_map('trim', $_POST);
