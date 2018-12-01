@@ -32,7 +32,7 @@
         ?>
         <?php mostrarMenu() ?>
         <div class="container">
-            <?php mostrarFormularioUsuario($valores, $error, $pdo, 'Insertar') ?>
+            <?php mostrarFormularioUsuario($valores, $error, $pdo) ?>
             <?php pie() ?>
         </div>
 

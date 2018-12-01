@@ -224,7 +224,7 @@ function mensajeError($key, $error)
 {
     if (isset($error[$key])) { ?>
         <small class="help-block"><?= $error[$key] ?></small>
-        <script language='JavaScript'>alert ("<?= $error[$key] ?>"); </script>
+        <!-- <script language='JavaScript'>alert ("<?= $error[$key] ?>"); </script> -->
     <?php
     }
 }
@@ -315,29 +315,31 @@ function mostrarFormularioGenero($valores, $error, $pdo, $accion)
     <?php
 }
 
-function mostrarFormularioUsuario($valores, $error, $pdo, $accion)
+function mostrarFormularioUsuario($valores, $error, $pdo)
 {
     extract($valores);
     ?>
     <br>
     <div class="panel panel-primary">
         <div class="panel-heading">
-            <h3 class="panel-title"><?= $accion ?> un nuevo usuario</h3>
+            <h3 class="panel-title">Registrate</h3>
         </div>
         <div class="panel-body">
 
                 <div class="container">
                     <div class="row">
                         <form action="" method="post">
-                            <div class="form-group">
+                            <div class="form-group" <?= hasError('login', $error) ?>>
                                 <label for="login">Usuario:</label>
                                 <input class="form-control" type="text" name="login" value="">
+                                <?php mensajeError('login', $error) ?>
                             </div>
-                            <div class="form-group">
+                            <div class="form-group" <?= hasError('password', $error) ?>>
                                 <label for="password">Contraseña:</label>
                                 <input class="form-control" type="password" name="password" value="">
+                                <?php mensajeError('password', $error) ?>
                             </div>
-                            <input type="submit" value="<?= $accion ?>"
+                            <input type="submit" value="Registrar"
                             class="btn btn-success">
                             <a href="login.php" class="btn btn-info">Volver</a>
                         </form>

@@ -42,10 +42,12 @@
                     <div class="form-group">
                         <label for="login">Usuario:</label>
                         <input class="form-control" type="text" name="login" value="">
+                        <?php mensajeError('login', $error) ?>
                     </div>
                     <div class="form-group">
                         <label for="password">Contraseña:</label>
                         <input class="form-control" type="password" name="password" value="">
+                        <?php mensajeError('password', $error) ?>
                     </div>
                     <button type="submit" class="btn btn-default">Iniciar sesión</button>
                     <a href="registrar.php" class="btn btn-info">Registrarse</a>
